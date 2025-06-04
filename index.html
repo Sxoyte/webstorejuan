@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xvenzo Official Store - Modern & Animated</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; /* slate-900 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; /* slate-700 */
+            border-radius: 5px;
+            border: 2px solid #0f172a; /* slate-900 */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; /* slate-600 */
+        }
+
+        /* Inter font (Tailwind default) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* slate-950 */
+            color: #e2e8f0; /* slate-200 */
+            overflow-x: hidden; 
+        }
+        /* Class to prevent body scroll when sidebar is open on mobile */
+        body.sidebar-open-mobile {
+            overflow: hidden;
+        }
+        
+        /* Sidebar enhancements */
+        #sidebar {
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            background: rgba(15, 23, 42, 0.95); /* slate-900 with more opacity */
+            backdrop-filter: blur(12px);
+            border-right: 1px solid #1e293b; /* slate-800 */
+        }
+        #sidebar nav a {
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        #sidebar nav a:hover, #sidebar nav a.active-link { /* Style for active link */
+            background-color: rgba(30, 41, 59, 0.8); 
+            color: #5eead4; /* teal-300 */
+            transform: translateX(5px);
+            border-left-color: #5eead4; /* teal-300 */
+        }
+
+        /* Product Card enhancements */
+        .product-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a); 
+            border: 1px solid #334155; 
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease-out;
+            opacity: 0; 
+            transform: translateY(30px); 
+        }
+        .product-card.is-visible { 
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 30px -10px rgba(0, 255, 220, 0.15);
+        }
+        .product-card img.product-image-display { /* Specific class for product images */
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover img.product-image-display {
+            transform: scale(1.05);
+        }
+
+        /* Button enhancements */
+        .btn-primary {
+            background: linear-gradient(to right, #14b8a6, #0d9488); 
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px -5px rgba(20, 184, 166, 0.4);
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 20px -8px rgba(20, 184, 166, 0.6);
+        }
+         .btn-payment {
+            background-color: #334155; /* slate-700 */
+            color: #e2e8f0; /* slate-200 */
+            transition: all 0.2s ease;
+            border: 1px solid #475569; /* slate-600 */
+            font-size: 0.8rem; /* Smaller font for payment buttons */
+        }
+        .btn-payment:hover, .btn-payment.active {
+            background-color: #5eead4; /* teal-300 */
+            color: #0f172a; /* slate-900 */
+            border-color: #5eead4;
+            transform: translateY(-1px);
+        }
+        .btn-payment img { /* DANA logo */
+            height: 1em; /* Adjust size relative to font */
+            width: auto;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 0.25em;
+        }
+
+
+        /* Section title animation */
+        .section-title-animate {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .section-title-animate.is-visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* Hero section title animation */
+        .hero-main-title-container { /* This is the h2 */
+            /* The existing .hero-content > * animation will apply for fade/slide */
+        }
+        .hero-main-title-wrapper {
+            position: relative;
+            display: inline-block; /* So the box fits the text */
+            padding: 0.3em 0.5em; /* Padding around the text for the lines */
+        }
+        .hero-main-title-wrapper .line {
+            position: absolute;
+            background-color: #5eead4; /* Teal color */
+            opacity: 0; /* Start transparent, fade in with animation */
+        }
+        .hero-main-title-wrapper .line-top {
+            top: 0; left: 0; width: 0; height: 3px;
+            animation: drawTopLine 0.4s linear forwards;
+            animation-delay: 0.7s; /* Start after text is mostly visible (0.2s h2 delay + 0.5s h2 anim) */
+        }
+        .hero-main-title-wrapper .line-right {
+            top: 0; right: 0; width: 3px; height: 0;
+            animation: drawRightLine 0.4s linear forwards;
+            animation-delay: 1.1s; /* 0.7s + 0.4s */
+        }
+        .hero-main-title-wrapper .line-bottom {
+            bottom: 0; right: 0; width: 0; height: 3px; 
+            animation: drawBottomLine 0.4s linear forwards; 
+            animation-delay: 1.5s; /* 1.1s + 0.4s */
+        }
+        .hero-main-title-wrapper .line-left {
+            bottom: 0; left: 0; width: 3px; height: 0; 
+            animation: drawLeftLine 0.4s linear forwards; 
+            animation-delay: 1.9s; /* 1.5s + 0.4s */
+        }
+
+        @keyframes drawTopLine {
+            to { width: 100%; opacity: 1; }
+        }
+        @keyframes drawRightLine {
+            to { height: 100%; opacity: 1; }
+        }
+        @keyframes drawBottomLine { /* Draws from right to left because positioned with right:0 */
+            to { width: 100%; opacity: 1; }
+        }
+        @keyframes drawLeftLine { /* Draws from bottom to top because positioned with bottom:0 */
+            to { height: 100%; opacity: 1; }
+        }
+
+        /* Hero section content animation */
+        .hero-content > * {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .hero-bg-animate {
+            transition: transform 10s ease-out; 
+        }
+        .hero-bg-animate.loaded {
+            transform: scale(1.05);
+        }
+
+        /* Contact item animation */
+        .contact-item {
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .contact-item:hover {
+            transform: translateY(-5px) scale(1.03);
+            background-color: #1e293b; 
+        }
+        .contact-item i {
+             transition: transform 0.3s ease;
+        }
+        .contact-item:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Enhanced Styling for product options select */
+        .product-options-select {
+            appearance: none; 
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            display: block;
+            width: 100%;
+            padding-top: 0.625rem; 
+            padding-bottom: 0.625rem; 
+            padding-left: 0.75rem; 
+            padding-right: 2.5rem; 
+            font-size: 0.875rem; 
+            line-height: 1.25rem; 
+            font-weight: 500; 
+            color: #cbd5e1; 
+            background-color: #1e293b; 
+            border: 1px solid #334155; 
+            border-radius: 0.375rem; 
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); 
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1.25em 1.25em;
+            cursor: pointer;
+        }
+        .product-options-select:hover {
+            border-color: #4b5563; 
+            background-color: #273244; 
+        }
+        .product-options-select:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: #5eead4; 
+            background-color: #1e293b; 
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.4); 
+        }
+        .product-options-select option {
+            background-color: #1e293b; 
+            color: #e2e8f0; 
+            padding: 0.5rem 0.75rem; 
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* General fade-in for sections */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Sidebar Overlay for mobile */
+        #sidebarOverlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .store-logo-sidebar {
+            width: 50px; 
+            height: 50px; 
+            object-fit: cover; 
+        }
+        .store-logo-header-mobile {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+        }
+        .store-thumbnail-hero {
+            width: 180px;
+            height: 180px;
+            object-fit: cover;
+        }
+        .store-profile-info {
+            width: 150px; 
+            height: 150px;
+            object-fit: cover;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-40 hidden md:hidden"></div>
+
+    <aside id="sidebar" aria-label="Navigasi Utama" class="fixed top-0 left-0 z-50 w-72 h-screen bg-slate-900 shadow-2xl transform -translate-x-full md:translate-x-0">
+        <div class="p-8">
+            <a href="#hero" class="flex items-center space-x-3 mb-10 sidebar-brand-link">
+                <img src="https://files.catbox.moe/o57rwe.jpg" alt="Logo Xvenzo Store" class="store-logo-sidebar rounded-full border-2 border-teal-400">
+                <h1 class="text-3xl font-bold text-white tracking-tight">Xvenzo<span class="text-teal-400">.</span></h1>
+            </a>
+            <nav class="space-y-2">
+                <a href="#hero" class="block py-3 px-4 rounded-lg sidebar-link text-slate-300 font-medium">
+                    <i class="fas fa-home w-6 mr-2"></i>Beranda
+                </a>
+                <a href="#products" class="block py-3 px-4 rounded-lg sidebar-link text-slate-300 font-medium">
+                    <i class="fas fa-cubes w-6 mr-2"></i>Produk
+                </a>
+                <a href="#info" class="block py-3 px-4 rounded-lg sidebar-link text-slate-300 font-medium">
+                    <i class="fas fa-info-circle w-6 mr-2"></i>Informasi
+                </a>
+                <a href="#contact" class="block py-3 px-4 rounded-lg sidebar-link text-slate-300 font-medium">
+                    <i class="fas fa-headset w-6 mr-2"></i>Hubungi Kami
+                </a>
+            </nav>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full p-6 text-center text-xs text-slate-500">
+            &copy; <span id="currentYear"></span> Xvenzo Official Store.
+        </div>
+    </aside>
+
+    <div id="mainContent" class="md:ml-72 transition-all duration-300 ease-in-out">
+        <header class="md:hidden fixed top-0 left-0 right-0 z-30 bg-slate-900/80 backdrop-blur-md p-4 shadow-lg flex justify-between items-center">
+            <a href="#hero" class="flex items-center space-x-2">
+                <img src="https://files.catbox.moe/o57rwe.jpg" alt="Logo Xvenzo Store Kecil" class="store-logo-header-mobile rounded-full">
+                <span class="text-xl font-bold text-white">Xvenzo<span class="text-teal-400">.</span></span>
+            </a>
+            <button id="sidebarToggle" aria-controls="sidebar" aria-expanded="false" class="text-white focus:outline-none p-2 rounded-md hover:bg-slate-700 focus:ring-2 focus:ring-teal-400">
+                <span class="sr-only">Buka navigasi</span>
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </header>
+
+        <section id="hero" class="pt-20 md:pt-0 min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 relative overflow-hidden">
+            <div class="absolute inset-0 hero-bg-animate" style="background-image: url('https://placehold.co/1600x1000/020617/1e293b?text=Solusi+Digital+Premium'); background-size: cover; background-position: center; opacity: 0.3;"></div>
+            <div class="relative z-10 bg-black/50 backdrop-blur-sm p-8 md:p-16 rounded-2xl text-center shadow-2xl hero-content max-w-3xl">
+                <h2 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight hero-main-title-container" style="animation-delay: 0.2s;">
+                    <span class="hero-main-title-wrapper">
+                        Xvenzo <span class="text-teal-400">Official Store</span>
+                        <span class="line line-top"></span>
+                        <span class="line line-right"></span>
+                        <span class="line line-bottom"></span>
+                        <span class="line line-left"></span>
+                    </span>
+                </h2>
+                <p class="text-xl md:text-2xl text-slate-300 mb-10" style="animation-delay: 0.3s;">
+                    Solusi Digital <span class="font-semibold text-teal-300">Inovatif</span> dan <span class="font-semibold text-teal-300">Terpercaya</span> untuk Kebutuhan Anda.
+                </p>
+                <a href="#products" class="btn-primary py-4 px-10 rounded-lg text-lg font-semibold inline-block" style="animation-delay: 0.4s;">
+                    Jelajahi Produk <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </section>
+
+        <section id="products" class="py-20 bg-slate-900 fade-in-section">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center mb-16 text-teal-400 section-title-animate">Produk Unggulan Kami</h2>
+                <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+                    </div>
+            </div>
+        </section>
+
+        <section id="info" class="py-20 bg-slate-950 fade-in-section">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center mb-16 text-teal-400 section-title-animate">Tentang Xvenzo Store</h2>
+                <div class="max-w-4xl mx-auto bg-slate-800/70 backdrop-blur-sm p-10 rounded-xl shadow-2xl flex flex-col md:flex-row items-center gap-8">
+                    <img src="https://files.catbox.moe/o57rwe.jpg" alt="Profil Xvenzo Store" class="store-profile-info w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-teal-400 shadow-lg flex-shrink-0">
+                    <div class="text-center md:text-left">
+                        <h3 class="text-3xl font-semibold text-white mb-4">Xvenzo Official Store</h3>
+                        <p class="text-slate-300 leading-relaxed text-lg">
+                            Kami di <span class="font-semibold text-teal-300">Xvenzo Official Store</span> berdedikasi untuk menyediakan layanan digital terbaik. Dari panel server Pterodactyl yang handal, bot WhatsApp kustom, hingga top-up game dan VPS berkualitas, kami hadir untuk memenuhi semua kebutuhan digital Anda. Prioritas kami adalah <span class="font-semibold">kualitas</span>, <span class="font-semibold">harga kompetitif</span>, dan <span class="font-semibold">kepuasan pelanggan</span>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-20 bg-slate-900 fade-in-section">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center mb-16 text-teal-400 section-title-animate">Terhubung Dengan Kami</h2>
+                <div class="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <a href="https://instagram.com/rexzy_juan" target="_blank" class="contact-item bg-slate-800 p-6 rounded-xl shadow-lg flex items-center space-x-6 hover:bg-slate-700/80">
+                        <i class="fab fa-instagram text-5xl text-pink-500"></i>
+                        <div>
+                            <h3 class="text-2xl font-semibold text-white">Instagram</h3>
+                            <p class="text-slate-400">@rexzy_juan</p>
+                        </div>
+                    </a>
+                    <a href="https://t.me/@Sxoyte_agency" target="_blank" class="contact-item bg-slate-800 p-6 rounded-xl shadow-lg flex items-center space-x-6 hover:bg-slate-700/80">
+                        <i class="fab fa-telegram-plane text-5xl text-sky-500"></i>
+                        <div>
+                            <h3 class="text-2xl font-semibold text-white">Telegram</h3>
+                            <p class="text-slate-400">@Sxoyte_agency</p>
+                        </div>
+                    </a>
+                    <a href="https://wa.me/6285776423645" target="_blank" class="contact-item bg-slate-800 p-6 rounded-xl shadow-lg flex items-center space-x-6 hover:bg-slate-700/80">
+                        <i class="fab fa-whatsapp text-5xl text-green-500"></i>
+                        <div>
+                            <h3 class="text-2xl font-semibold text-white">WhatsApp</h3>
+                            <p class="text-slate-400">+62 857-7642-3645</p>
+                        </div>
+                    </a>
+                    <a href="https://whatsapp.com/channel/0029VbAhSsX5K3zUMK2iZ30i" target="_blank" class="contact-item bg-slate-800 p-6 rounded-xl shadow-lg flex items-center space-x-6 hover:bg-slate-700/80">
+                        <i class="fab fa-whatsapp-square text-5xl text-green-400"></i>
+                        <div>
+                            <h3 class="text-2xl font-semibold text-white">Channel WA</h3>
+                            <p class="text-slate-400">Ikuti Channel Kami</p>
+                        </div>
+                    </a>
+                     <a href="https://t.me/Sxoyte_testi" target="_blank" class="contact-item bg-slate-800 p-6 rounded-xl shadow-lg flex items-center space-x-6 hover:bg-slate-700/80 sm:col-span-2">
+                        <i class="fab fa-telegram text-5xl text-blue-400"></i>
+                        <div>
+                            <h3 class="text-2xl font-semibold text-white">Channel Telegram</h3>
+                            <p class="text-slate-400">Ikuti Update Terbaru</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="text-center p-8 bg-slate-950 text-slate-500 text-sm border-t border-slate-800">
+            Hak Cipta &copy; <span id="footerYear"></span> Xvenzo Official Store. Dirancang dengan <i class="fas fa-heart text-red-500"></i>.
+        </footer>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const WHATSAPP_NUMBER = '6285776423645'; // Ganti dengan nomor WhatsApp Anda
+
+        const products = [ 
+            { 
+                id: 'Layanan Panel Pterodactyl ', 
+                name: 'Panel Pterodactyl', 
+                image: 'https://placehold.co/300x220/0d9488/ffffff?text=Pterodactyl&font=montserrat', 
+                description: 'Panel Pterodactyl performa tinggi untuk server game Anda. Mudah dikelola dan powerful.',
+                price: 'Mulai Rp25.000/bln',
+                options: [
+                    'Paket Basic: 1 Core, 1GB RAM, 10GB SSD',
+                    'Paket Standard: 2 Core, 2GB RAM, 25GB SSD',
+                    'Paket Pro: 4 Core, 4GB RAM, 50GB SSD'
+                ]
+            },
+            { 
+                id: 'Layanan Bot WhatsApp', 
+                name: 'Bot WhatsApp', 
+                image: 'https://placehold.co/300x220/0d9488/ffffff?text=WA+Bot&font=montserrat', 
+                description: 'Bot WhatsApp otomatis untuk berbagai kebutuhan bisnis, notifikasi, atau grup.',
+                price: 'Mulai Rp50.000',
+                options: [
+                    'Bot Notifikasi Sederhana',
+                    'Bot Auto-Reply Kustom',
+                    'Bot Grup Manajemen'
+                ]
+            },
+            { 
+                id: 'Layanan Script Bot', 
+                name: 'Script Bot Kustom', 
+                image: 'https://placehold.co/300x220/0d9488/ffffff?text=Script+Bot&font=montserrat', 
+                description: 'Pembuatan script bot kustom sesuai kebutuhan spesifik Anda (Telegram, Discord, dll).',
+                price: 'Hubungi Kami'
+            },
+            { 
+                id: 'Layanan Topup Diamond All Game', 
+                name: 'Diamond All Game', 
+                image: 'https://placehold.co/300x220/0d9488/ffffff?text=Game+Diamond&font=montserrat', 
+                description: 'Top-up diamond untuk berbagai game populer (Mobile Legends, Free Fire, PUBG, dll).',
+                price: 'Harga Terbaik',
+                options: [
+                    'Mobile Legends: 100 Diamonds', 'Mobile Legends: 500 Diamonds',
+                    'Free Fire: 140 Diamonds', 'Free Fire: 720 Diamonds',
+                    'PUBG Mobile: 60 UC', 'PUBG Mobile: 325 UC'
+                ]
+            },
+            { 
+                id: 'Layanan Pulsa', 
+                name: 'Pulsa All Operator', 
+                image: 'https://placehold.co/300x220/0d9488/ffffff?text=Pulsa&font=montserrat', 
+                description: 'Isi ulang pulsa untuk semua operator seluler di Indonesia. Cepat dan mudah.',
+                price: 'Sesuai Nominal',
+                options: [
+                    'Telkomsel: Rp10.000', 'Telkomsel: Rp25.000', 'Telkomsel: Rp50.000', 'Telkomsel: Rp100.000',
+                    'XL: Rp10.000', 'XL: Rp25.000', 'XL: Rp50.000', 'XL: Rp100.000',
+                    'Indosat: Rp10.000', 'Indosat: Rp25.000', 'Indosat: Rp50.000', 'Indosat: Rp100.000'
+                ]
+            },
+            { 
+                id: 'Layanan Kuota', 
+                name: 'Kuota All Operator', 
+                image: 'https://placehold.co/300x220/0d9488/ffffff?text=Kuota&font=montserrat', 
+                description: 'Paket data internet untuk semua operator. Berbagai pilihan kuota.',
+                price: 'Sesuai Paket',
+                options: [
+                    'Telkomsel: 1GB, 7 Hari', 'Telkomsel: 5GB, 30 Hari', 'Telkomsel: OMG! 10GB',
+                    'XL: Xtra Combo Lite 3.5GB', 'XL: Xtra Combo VIP 10GB',
+                    'Indosat: Freedom U 2GB', 'Indosat: Freedom Combo 10GB'
+                ]
+            },
+            { 
+                id: 'Layanan Vps', 
+                name: 'VPS (Virtual Private Server)', 
+                image: 'https://placehold.co/300x220/0d9488/ffffff?text=VPS&font=montserrat', 
+                description: 'Sewa VPS berkualitas dengan berbagai pilihan spesifikasi untuk hosting atau project Anda.',
+                price: 'Mulai Rp75.000/bln',
+                options: [
+                    'VPS Basic: 1 vCPU, 1GB RAM, 25GB SSD',
+                    'VPS Standard: 2 vCPU, 2GB RAM, 50GB SSD',
+                    'VPS Pro: 4 vCPU, 4GB RAM, 100GB SSD',
+                    'VPS Elite: 8 vCPU, 16GB RAM, 200GB SSD'
+                ]
+            },
+            { 
+                id: 'Layanan Suntik Followers Sosmed', 
+                name: 'Jasa Suntik Follower', 
+                image: 'https://placehold.co/300x220/0d9488/ffffff?text=Follower&font=montserrat', 
+                description: 'Tingkatkan popularitas akun media sosial Anda (Instagram, TikTok, Twitter, dll).',
+                price: 'Mulai Rp10.000',
+                options: [
+                    'Instagram: 100 Followers', 'Instagram: 500 Followers', 'Instagram: 1000 Followers',
+                    'TikTok: 100 Followers', 'TikTok: 500 Followers', 'TikTok: 1000 Followers',
+                    'Twitter: 100 Followers'
+                ]
+            }
+        ];
+
+        // --- DOM Elements ---
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const productListContainer = document.getElementById('product-list');
+        const mainContent = document.getElementById('mainContent'); 
+        
+        // --- Functions ---
+        function renderProducts() { 
+            if (!productListContainer) return;
+            productListContainer.innerHTML = ''; 
+            products.forEach((product, index) => {
+                let optionsHTML = '';
+                if (product.options && product.options.length > 0) {
+                    const optionElements = product.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                    optionsHTML = `
+                        <div class="mt-4 mb-2">
+                            <label for="options-${product.id}" class="block text-sm font-medium text-slate-400 mb-1">Pilih Varian:</label>
+                            <select id="options-${product.id}" name="options-${product.id}" class="product-options-select">
+                                ${optionElements}
+                            </select>
+                        </div>
+                    `;
+                }
+
+                const productCard = `
+                    <div class="product-card bg-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col" style="transition-delay: ${index * 100}ms">
+                        <div class="overflow-hidden">
+                           <img src="${product.image}" alt="${product.name}" class="product-image-display w-full h-52 object-cover">
+                        </div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-2xl font-semibold mb-2 text-white">${product.name}</h3>
+                            <p class="text-slate-400 text-sm mb-3 flex-grow">${product.description}</p>
+                            ${optionsHTML} 
+                            <p class="text-xl font-bold text-teal-400 mt-4 mb-4">${product.price}</p> <div class="mt-auto"> <div class="mb-3">
+                                    <label class="block text-sm font-medium text-slate-400 mb-1">Metode Pembayaran:</label>
+                                    <div class="flex space-x-2 payment-method-options" data-product-id="${product.id}">
+                                        <button class="btn-payment payment-option flex-1 py-2 px-3 rounded-md active" data-payment="whatsapp">
+                                            <i class="fab fa-whatsapp"></i> WhatsApp
+                                        </button>
+                                        <button class="btn-payment payment-option flex-1 py-2 px-3 rounded-md" data-payment="dana">
+                                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg" alt="DANA" onerror="this.style.display='none'; this.nextSibling.style.display='inline';"> DANA
+                                        </button>
+                                        <button class="btn-payment payment-option flex-1 py-2 px-3 rounded-md" data-payment="qris">
+                                            <i class="fas fa-qrcode"></i> QRIS
+                                        </button>
+                                    </div>
+                                </div>
+                                <button 
+                                    class="btn-primary w-full py-3 px-4 rounded-lg font-semibold text-base buy-button"
+                                    data-product-name="${product.name}"
+                                    data-product-id="${product.id}" 
+                                >
+                                    <i class="fas fa-shopping-cart mr-2"></i> Pesan Sekarang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                productListContainer.innerHTML += productCard;
+            });
+            observeElements('.product-card', 'is-visible');
+            
+            // Add event listeners for new payment option buttons
+            document.querySelectorAll('.payment-option').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.stopPropagation(); // Prevent card click event if any
+                    // Remove active class from siblings within the same product card
+                    this.parentElement.querySelectorAll('.payment-option').forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                });
+            });
+        }
+
+        function handleBuyButtonClick(event) {
+            // Check if the click is on the buy button itself, not on payment options
+            if (!event.target.closest('.buy-button')) return;
+
+            const button = event.target.closest('.buy-button');
+            const productName = button.dataset.productName;
+            const productId = button.dataset.productId; 
+
+            let selectedOptionText = '';
+            const optionsSelect = document.getElementById(`options-${productId}`);
+            
+            if (optionsSelect && optionsSelect.value) {
+                selectedOptionText = ` (Varian: ${optionsSelect.value})`;
+            }
+
+            // Get selected payment method
+            const paymentOptionsWrapper = document.querySelector(`.payment-method-options[data-product-id="${productId}"]`);
+            const selectedPaymentButton = paymentOptionsWrapper ? paymentOptionsWrapper.querySelector('.payment-option.active') : null;
+            const paymentMethod = selectedPaymentButton ? selectedPaymentButton.dataset.payment : 'whatsapp'; // Default to whatsapp
+
+            let messageText = `Halo Xvenzo Store, saya tertarik untuk memesan produk: ${productName}${selectedOptionText}.`;
+
+            if (paymentMethod === 'dana') {
+                messageText += `\nSaya ingin melakukan pembayaran melalui DANA. Mohon info nomor DANA Anda.`;
+            } else if (paymentMethod === 'qris') {
+                messageText += `\nSaya ingin melakukan pembayaran melalui QRIS. Mohon kirimkan kode QRIS Anda.`;
+            } else { // Default to WhatsApp or if OkeeConnect is relevant
+                 if (productId === 'pulsa' || productId === 'kuota') {
+                    messageText += ` Pembayaran melalui akun OkeeConnect. Mohon info selanjutnya.`;
+                } else {
+                    messageText += ` Mohon info selanjutnya untuk pemesanan.`;
+                }
+            }
+            
+            const message = encodeURIComponent(messageText);
+            const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+            window.open(whatsappURL, '_blank');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            sidebarOverlay.classList.add('hidden');
+            sidebarOverlay.style.opacity = '0'; 
+            document.body.classList.remove('sidebar-open-mobile');
+            sidebarToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            sidebarOverlay.classList.remove('hidden');
+            setTimeout(() => { 
+                 sidebarOverlay.style.opacity = '1';
+            }, 10);
+            document.body.classList.add('sidebar-open-mobile');
+            sidebarToggle.setAttribute('aria-expanded', 'true');
+        }
+
+        function toggleSidebar() {
+            const isSidebarOpen = sidebar.classList.contains('translate-x-0');
+            if (isSidebarOpen) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        }
+        
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+        function observeElements(selector, activeClass) {
+            const elements = document.querySelectorAll(selector);
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add(activeClass);
+                    }
+                });
+            }, { threshold: 0.1 }); 
+
+            elements.forEach(el => {
+                observer.observe(el);
+            });
+        }
+        
+        function animateHeroContent() { 
+            const heroContentElements = document.querySelectorAll('.hero-content > *');
+            heroContentElements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, (el.style.animationDelay ? parseFloat(el.style.animationDelay) * 1000 : 0) + index * 100);
+            });
+            const heroBg = document.querySelector('.hero-bg-animate');
+            if(heroBg) {
+                 setTimeout(() => heroBg.classList.add('loaded'), 100); 
+            }
+        }
+
+        // --- Event Listeners ---
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar); 
+        }
+
+        // Updated event listener for product list to delegate clicks
+        if (productListContainer) {
+            productListContainer.addEventListener('click', function(event) {
+                const buyButton = event.target.closest('.buy-button');
+                const paymentOptionButton = event.target.closest('.payment-option');
+
+                if (buyButton) {
+                    handleBuyButtonClick(event); // Pass the original event
+                } else if (paymentOptionButton) {
+                    // Handle payment option selection
+                    paymentOptionButton.parentElement.querySelectorAll('.payment-option').forEach(btn => btn.classList.remove('active'));
+                    paymentOptionButton.classList.add('active');
+                }
+            });
+        }
+        
+        const sidebarLinks = document.querySelectorAll('#sidebar nav a.sidebar-link');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                sidebarLinks.forEach(sl => sl.classList.remove('active-link'));
+                e.currentTarget.classList.add('active-link');
+
+                if (window.innerWidth < 768) { 
+                    closeSidebar();
+                }
+            });
+        });
+        function updateActiveLinkOnScroll() {
+            let currentSectionId = '';
+            const sections = document.querySelectorAll('section[id]'); 
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                const scrollPosition = window.scrollY + (window.innerHeight / 2); 
+
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    currentSectionId = section.getAttribute('id');
+                }
+            });
+
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active-link');
+                if (link.getAttribute('href') === `#${currentSectionId}`) {
+                    link.classList.add('active-link');
+                }
+            });
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            animateHeroContent();
+            observeElements('.section-title-animate', 'is-visible');
+            observeElements('.fade-in-section', 'is-visible');
+            updateActiveLinkOnScroll(); 
+            window.addEventListener('scroll', updateActiveLinkOnScroll); 
+        });
+
+    </script>
+</body>
+</html>
